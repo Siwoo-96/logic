@@ -186,7 +186,7 @@
 
       if (clear === 1) {
         init();
-        document.location = "game.html";
+        location.href = "https://siwoo-96.github.io/gamepage/"
       } else if (clear === 2) {
         popup.classList.remove('hidden');
         popup.innerHTML = `<div class="title">게임을 이어서 하시겠습니까?</div>
@@ -220,13 +220,13 @@
         console.log('----');
         if (target.textContent === '네') {
           init();
-          document.location = "game.html";
+          location.href = "https://siwoo-96.github.io/gamepage/"
         } else {
           init();
           datas[getId].datas = null;
           datas[getId].clear = 1;
           localStorage.setItem('nemologic', JSON.stringify(datas));
-          document.location = "game.html";
+          location.href = "https://siwoo-96.github.io/gamepage/"
         }
       }
 
@@ -236,7 +236,7 @@
           datas[getId].datas = null;
           datas[getId].clear = 1;
           localStorage.setItem('nemologic', JSON.stringify(datas));
-          document.location = "game.html";
+          location.href = "https://siwoo-96.github.io/gamepage/"
         } else {
           popup.classList.add('hidden');
         }
