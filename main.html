@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header {
+      width: 600px;
+      height: 100px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 30px;
+    }
+
+    .main {
+      width: 600px;
+
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+
+      user-select: none;
+    }
+
+    .category {
+      width: 120px;
+      height: 150px;
+
+      margin: 10px;
+      font-size: 30px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid black;
+      border-radius: 20px;
+    }
+
+    .clear {
+      width: 100px;
+      height: 30px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-top: 100px;
+
+      color: red;
+      position: absolute;
+    }
+
+    .popup {
+      width: 300px;
+      height: 100px;
+
+      display: flex;
+      flex-wrap: wrap;
+
+      margin-top: 300px;
+      border: 1px solid gray;
+      background-color: rgba(185, 182, 182, 0.8);
+      position: absolute;
+    }
+
+    .popup>.title {
+      width: 300px;
+      height: 50px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup>.btn {
+      width: 300px;
+      height: 50px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    button {
+      width: 50px;
+      height: 30px;
+
+      margin: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">동물</div>
+  <div class="main"></div>
+  <div class="popup hidden"></div>
+
+  <script src="db.js"></script>
+  <script>
+    let datas = JSON.parse(localStorage.getItem('nemologic')) || [];
+
+    const main = document.querySelector('.main');
+    let setting = [];
+
+    // clear 1 -> 미진행, 2 -> 진행중, 3 -> 완료
+    datas.forEach((data) => {
+      let title = data.title;
+      let clear = data.clear;
+      let id = data.id;
+      let temp = null;
+
+      if (clear === 1) {
+        temp = `<div class="category" id="${id}">
+                  <div class="title">${title}</div>
+                </div>`
+      } else if (clear === 2) {
+        clear = 'ing';
+        temp = `<div class="category" id="${id}">
+                  <div class="title">${title}</div>
+                  <div class="clear">${clear}</div>
+                </div>`
+      } else if (clear === 3) {
+        clear = 'clear';
+        temp = `<div class="category" id="${id}">
+                  <div class="title">${title}</div>
+                  <div class="clear">${clear}</div>
+                </div>`
+      }
+
+      setting.push(temp);
+    })
+
+    main.innerHTML = setting.join('');
+
+    function init() {
+      localStorage.setItem('undo', null);
+      localStorage.setItem('redo', null);
+    }
+
+    const popup = document.querySelector('.popup');
+
+    main.addEventListener('click', (event) => {
+      let target = event.target;
+
+      if (target.classList.contains('title')) {
+        target = target.parentNode;
+      }
+      if (target.classList.contains('clear')) {
+        target = target.parentNode;
+      }
+
+      if (!target.classList.contains('category')) {
+        return;
+      }
+
+      const saveId = target.id;
+
+      localStorage.setItem('id', saveId);
+
+      let clear = datas[Number(saveId) - 1].clear;
+
+      if (clear === 1) {
+        init();
+        document.location = "game.html";
+      } else if (clear === 2) {
+        popup.classList.remove('hidden');
+        popup.innerHTML = `<div class="title">게임을 이어서 하시겠습니까?</div>
+                            <div class="btn">
+                              <button type="button">네</button>
+                              <button type="button">아니오</button>
+                            </div>`
+      } else if (clear === 3) {
+        popup.classList.remove('hidden')
+        popup.innerHTML = `<div class="title">처음부터 다시 하시겠습니까?</div>
+                            <div class="btn">
+                              <button type="button">네</button>
+                              <button type="button">아니오</button>
+                            </div>`
+      }
+    })
+
+    popup.addEventListener('click', ({ target }) => {
+      if (!target.parentNode.classList.contains('btn')) {
+        return;
+      }
+
+      let getId = Number(localStorage.getItem('id')) - 1;
+      let clear = datas[Number(getId)].clear;
+      console.log(getId, clear, typeof(clear));
+
+      const btn = document.querySelectorAll('.btn button');
+      console.log(target.textContent);
+
+      if (clear === 2) {
+        console.log('----');
+        if (target.textContent === '네') {
+          init();
+          document.location = "game.html";
+        } else {
+          init();
+          datas[getId].datas = null;
+          datas[getId].clear = 1;
+          localStorage.setItem('nemologic', JSON.stringify(datas));
+          document.location = "game.html";
+        }
+      }
+
+      if (clear === 3) {
+        if (target.textContent === '네') {
+          init();
+          datas[getId].datas = null;
+          datas[getId].clear = 1;
+          localStorage.setItem('nemologic', JSON.stringify(datas));
+          document.location = "game.html";
+        } else {
+          popup.classList.add('hidden');
+        }
+      }
+    });
+
+  </script>
+</body>
+
+</html>
